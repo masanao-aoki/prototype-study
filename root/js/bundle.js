@@ -1,31 +1,83 @@
 "use strict";
 
 //constructor
-var NameFunction = function (n) {
-	this.name = '名無し';
+var FollowingHeader = function(id){
+	this.id = id;
+};
+
+//初期値を更新
+FollowingHeader.prototype.init = function (){
+	this.updatePosition();
+	this.updateClass();
+	this.scrollEvent();
+	this.reizeEvent();
+};
+
+// スクロールの位置値をセット、更新
+FollowingHeader.prototype.setScrollPosition = function () {
+	this.scrollPosition = $(window).scrollTop();
 }
 
-//constructor
-var AgeFunvtion = function (num) {
-	this.age = 12;
+// ヘッダーの位置値をセット、更新
+FollowingHeader.prototype.setHeaderPosition = function () {
+	this.headerPosition = $(this.id).offset().top;
 }
 
-//プロトタイプ
-NameFunction.prototype.chengeName = function (name, age) {
-	this.age = ageObj.changeAge(age);
-	this.name = name;
-	var name = '名前は' + this.name + 'だよ。年齢は' + this.age + 'だよ';
-	return name;
+// スクロール＋ヘッダーの位置値をセット、更新
+FollowingHeader.prototype.updatePosition = function () {
+	this.setScrollPosition();
+	this.setHeaderPosition();
 }
 
-//プロトタイプ
-AgeFunvtion.prototype.changeAge = function (age) {
-	return age == undefined ? this.age : age;
+//ヘッダーの判定
+FollowingHeader.prototype.updateClass = function (){
+	if(this.scrollPosition >= this.headerPosition ) {
+		this.addActive();
+	} else {
+		this.removeActive();
+	}
+};
+
+//ヘッダーにactiveをつける
+FollowingHeader.prototype.addActive = function () {
+	$(this.id).addClass('is-active');
+	this.updateActiveNextBlock($(this.id).innerHeight());
+}
+
+FollowingHeader.prototype.updateActiveNextBlock = function (activeHeight) {
+	$(this.id).next().css({
+		marginTop: activeHeight + 'px'
+	})
+}
+
+//ヘッダーのactiveを外す
+FollowingHeader.prototype.removeActive = function () {
+	$(this.id).removeClass('is-active');
+	this.updateActiveNextBlock(0);
 }
 
 
-var nameObj = new NameFunction();
-var ageObj = new AgeFunvtion();
+//scroll イベント
+FollowingHeader.prototype.scrollEvent = function (){
+	var _this = this;
+	$(window).on('scroll touchmove',function () {
+		_this.setScrollPosition();
+		_this.updateClass();
+	});
+};
 
-console.log(nameObj.chengeName('boccs',32));
-console.log(nameObj.chengeName('xxxx'));
+//resize イベント
+FollowingHeader.prototype.reizeEvent = function (){
+	var _this = this;
+	$(window).on('resize',function () {
+		_this.removeActive();
+		_this.updatePosition();
+		_this.updateClass();
+	});
+};
+
+var followingHeader = new FollowingHeader('header');
+followingHeader.init();
+
+
+console.log(window);
